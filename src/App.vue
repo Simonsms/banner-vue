@@ -23,14 +23,14 @@ import WaveCarousel from "@/components/WaveCarousel/index.vue";
   /* 亮色调 */
   --accent-light: #ffe4c4;
   --accent-gold: #ffd4a3;
-  /* 背景渐变：从左到右的温暖过渡 */
+  /* 背景渐变：从上到下的温暖过渡 */
   --bg-dark: #d74029;
   --bg-gradient: linear-gradient(
-    to right,
+    to bottom,
     #ffe4c4 0%,
-    #f5a962 25%,
-    #f08a4b 45%,
-    #e85d3a 70%,
+    #f5a962 10%,
+    #f08a4b 25%,
+    #e85d3a 50%,
     #c83a2d 100%
   );
   --text-white: #ffffff;

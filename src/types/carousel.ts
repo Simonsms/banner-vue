@@ -7,12 +7,12 @@
 export interface SlideItem {
   /** 图片地址 */
   image: string;
-  /** 中文标题 */
-  title: string;
-  /** 中文描述 */
-  descCn: string;
-  /** 英文描述 */
-  descEn: string;
+  /** 姓名 */
+  name: string;
+  /** 职务 */
+  position: string;
+  /** 感悟 */
+  thoughts: string;
 }
 
 /** API 响应数据格式（预留接口对接） */

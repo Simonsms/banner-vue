@@ -32,13 +32,6 @@ const textPlay = ref(false);
 const nextSlideIndex = ref<number | null>(null);
 const isTransitioning = ref(false);
 
-// 倒影样式
-const reflectionStyle = computed(() => ({
-  backgroundImage: `url(${currentSlide.value?.image})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-}));
-
 // 监听索引变化，播放文字动画
 watch(
   () => props.currentIndex,
@@ -133,10 +126,10 @@ const handleThumbClick = (index: number) => {
         :class="{ animate: textAnimate, play: textPlay }"
       >
         <div class="part-label">{{ partLabel }}</div>
-        <h1 class="title">{{ currentSlide?.title }}</h1>
+        <h1 class="title">{{ currentSlide?.name }}</h1>
         <div class="divider"></div>
-        <p class="desc-cn">{{ currentSlide?.descCn }}</p>
-        <p class="desc-en">{{ currentSlide?.descEn }}</p>
+        <p class="info-item position">职务：{{ currentSlide?.position }}</p>
+        <p class="info-item thoughts">感悟：{{ currentSlide?.thoughts }}</p>
       </div>
 
       <!-- 右侧图片区 -->
@@ -147,7 +140,7 @@ const handleThumbClick = (index: number) => {
             <img
               v-if="currentSlide"
               :src="currentSlide.image"
-              :alt="currentSlide.title"
+              :alt="currentSlide.name"
               class="main-image"
               :class="{
                 current: isTransitioning,
@@ -163,7 +156,6 @@ const handleThumbClick = (index: number) => {
               class="main-image next-enter"
             />
           </div>
-          <div class="image-reflection" :style="reflectionStyle"></div>
         </div>
 
         <!-- 缩略图导航 -->
@@ -279,33 +271,38 @@ const handleThumbClick = (index: number) => {
   animation-delay: 0.4s;
 }
 
-.desc-cn {
-  font-size: 22px;
-  line-height: 2;
+.info-item {
+  font-size: 18px;
+  line-height: 1.8;
   color: var(--text-light);
-  margin-bottom: 30px;
+  margin-bottom: 16px;
   opacity: 0;
   transform: translateY(20px);
+}
+
+.info-item.name {
   animation: fadeInUp 0.6s ease forwards;
   animation-delay: 0.5s;
 }
 
-.desc-en {
-  font-size: 16px;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.6);
-  opacity: 0;
-  transform: translateY(20px);
+.info-item.position {
   animation: fadeInUp 0.6s ease forwards;
   animation-delay: 0.6s;
+}
+
+.info-item.thoughts {
+  font-size: 20px;
+  line-height: 2;
+  color: rgba(255, 255, 255, 0.8);
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.7s;
 }
 
 /* 文字重新动画 */
 .text-content.animate .part-label,
 .text-content.animate .title,
 .text-content.animate .divider,
-.text-content.animate .desc-cn,
-.text-content.animate .desc-en {
+.text-content.animate .info-item {
   animation: none;
   opacity: 0;
   transform: translateY(30px);
@@ -330,14 +327,19 @@ const handleThumbClick = (index: number) => {
   animation-delay: 0.3s;
 }
 
-.text-content.animate.play .desc-cn {
+.text-content.animate.play .info-item.name {
   animation: fadeInUp 0.6s ease forwards;
   animation-delay: 0.4s;
 }
 
-.text-content.animate.play .desc-en {
+.text-content.animate.play .info-item.position {
   animation: fadeInUp 0.6s ease forwards;
   animation-delay: 0.5s;
+}
+
+.text-content.animate.play .info-item.thoughts {
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.6s;
 }
 
 /* 右侧图片区 */
@@ -386,30 +388,6 @@ const handleThumbClick = (index: number) => {
 /* 当前图片（离开） */
 .main-image.current-leave {
   z-index: 1;
-}
-
-/* 图片倒影效果 */
-.image-reflection {
-  position: absolute;
-  bottom: -50%;
-  left: 0;
-  width: 100%;
-  height: 50%;
-  border-radius: 20px;
-  overflow: hidden;
-  transform: scaleY(-1);
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    transparent 70%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    transparent 70%
-  );
-  pointer-events: none;
-  animation: reflectionWave 4s ease-in-out infinite;
 }
 
 /* 缩略图导航 */
@@ -640,34 +618,6 @@ const handleThumbClick = (index: number) => {
   }
   100% {
     transform: translateY(-5px) scale(1);
-  }
-}
-
-@keyframes reflectionWave {
-  0%,
-  100% {
-    mask-image: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.25) 0%,
-      transparent 60%
-    );
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.25) 0%,
-      transparent 60%
-    );
-  }
-  50% {
-    mask-image: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.35) 0%,
-      transparent 75%
-    );
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.35) 0%,
-      transparent 75%
-    );
   }
 }
 
