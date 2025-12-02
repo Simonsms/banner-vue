@@ -1,3 +1,13 @@
+<!--
+ * @Author       : LAPTOP-T1PV1M6U\赵祥 18201492987@163.com
+ * @Date         : 2025-12-01 22:01:26
+ * @LastEditors  : LAPTOP-T1PV1M6U\赵祥 18201492987@163.com
+ * @LastEditTime : 2025-12-02 21:43:22
+ * @FilePath     : \iosbanner-vue\src\components\WaveCarousel\index.vue
+ * @Description  : 
+ * 
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
+-->
 <script setup lang="ts">
 import { provide } from "vue";
 import GridView from "./GridView.vue";

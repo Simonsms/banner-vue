@@ -26,15 +26,15 @@ onMounted(() => {
       item?.classList.add("intro-animate");
     });
 
-    // 2.2秒后开始淡出
+    // 4.5秒后开始淡出
     setTimeout(() => {
       isFading.value = true;
-    }, 2200);
+    }, 4500);
 
-    // 3秒后自动进入详情页
+    // 5.5秒后自动进入详情页
     setTimeout(() => {
       emit("select", 0, {} as MouseEvent);
-    }, 3000);
+    }, 5500);
   }
 });
 
@@ -72,7 +72,7 @@ const setGridItemRef = (el: any, index: number) => {
         :ref="(el) => setGridItemRef(el, index)"
         @click="handleClick(index, $event)"
       >
-        <img :src="slide.image" :alt="slide.title" />
+        <img :src="slide.image" :alt="slide.name" />
       </div>
     </div>
   </section>

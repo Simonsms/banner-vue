@@ -10,4 +10,14 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  server: {
+    host: "0.0.0.0",
+    proxy: {
+      "/dev-api": {
+        target: "http://39.106.88.72:18000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/dev-api/, ""),
+      },
+    },
+  },
 });

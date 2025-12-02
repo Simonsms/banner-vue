@@ -1,25 +1,51 @@
 /**
  * 轮播图数据类型定义
- * 为后续接口对接做准备
  */
 
-/** 单个幻灯片数据 */
+/** 单个幻灯片数据（前端使用） */
 export interface SlideItem {
   /** 图片地址 */
   image: string;
-  /** 姓名 */
+  /** 作者姓名 */
   name: string;
   /** 职务 */
   position: string;
-  /** 感悟 */
+  /** 描述 */
   thoughts: string;
+  /** 日期 */
+  authorTime: string;
 }
 
-/** API 响应数据格式（预留接口对接） */
+/** API 返回的文件项 */
+export interface FileItem {
+  id: string;
+  name: string;
+  originalName: string;
+  url: string | null;
+  thumbnailUrl: string | null;
+  path: string;
+  parentPath: string;
+  author: string | null;
+  authorTime: string | null;
+  jobTitle: string | null;
+  pdesc: string | null;
+  createTime: string;
+  updateTime: string;
+  createUserString: string | null;
+  type: number;
+  size: number;
+  extension: string;
+  contentType: string;
+  screenFlag: number;
+  auditStatus: number;
+}
+
+/** API 响应数据格式 */
 export interface CarouselApiResponse {
-  code: number;
-  message: string;
-  data: SlideItem[];
+  code: string;
+  msg: string;
+  success: boolean;
+  data: FileItem[];
 }
 
 /** 轮播配置选项 */

@@ -128,7 +128,12 @@ const handleThumbClick = (index: number) => {
         <div class="part-label">{{ partLabel }}</div>
         <h1 class="title">{{ currentSlide?.name }}</h1>
         <div class="divider"></div>
-        <p class="info-item position">职务：{{ currentSlide?.position }}</p>
+        <p class="info-item position">
+          <span>职务：{{ currentSlide?.position }}</span>
+          <span v-if="currentSlide?.authorTime" class="author-time">{{
+            currentSlide?.authorTime
+          }}</span>
+        </p>
         <p class="info-item thoughts">感悟：{{ currentSlide?.thoughts }}</p>
       </div>
 
@@ -152,7 +157,7 @@ const handleThumbClick = (index: number) => {
             <img
               v-if="nextSlideIndex !== null && slides[nextSlideIndex]"
               :src="slides[nextSlideIndex]!.image"
-              :alt="slides[nextSlideIndex]!.title"
+              :alt="slides[nextSlideIndex]!.name"
               class="main-image next-enter"
             />
           </div>
@@ -216,11 +221,11 @@ const handleThumbClick = (index: number) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 98%;
-  max-width: 2000px;
-  height: 94%;
-  gap: 40px;
-  padding: 0 30px;
+  width: 100%;
+  max-width: 2200px;
+  height: 96%;
+  gap: 30px;
+  padding: 0 15px;
 }
 
 /* 左侧文字区 */
@@ -280,9 +285,19 @@ const handleThumbClick = (index: number) => {
   transform: translateY(20px);
 }
 
-.info-item.name {
+.info-item.position {
+  display: flex;
+  align-items: center;
+  gap: 20px;
   animation: fadeInUp 0.6s ease forwards;
-  animation-delay: 0.5s;
+  animation-delay: 0.6s;
+}
+
+.author-time {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  padding-left: 20px;
+  border-left: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .info-item.position {

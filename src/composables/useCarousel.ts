@@ -1,6 +1,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import type { SlideItem, CarouselOptions } from "@/types/carousel";
 import { defaultSlides } from "@/data/slides";
+import { fetchCarouselData } from "@/api/carousel";
 
 /**
  * 轮播功能组合式函数
@@ -19,6 +20,7 @@ export function useCarousel(options: CarouselOptions = {}) {
   const isDetailView = ref(false);
   const showIntro = ref(showIntroAnimation);
   const autoPlayTimer = ref<number | null>(null);
+  const isLoading = ref(false);
 
   // 计算属性
   const currentSlide = computed(() => slides.value[currentIndex.value]);
@@ -126,9 +128,30 @@ export function useCarousel(options: CarouselOptions = {}) {
       exitDetail();
     }
   };
+
+  /**
+   * 从接口加载轮播数据
+   */
+  const loadSlides = async () => {
+    isLoading.value = true;
+    try {
+      const data = await fetchCarouselData();
+      if (data.length > 0) {
+        slides.value = data;
+      }
+    } catch (error) {
+      console.error("加载轮播数据失败:", error);
+      // 失败时保持默认数据
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   // 生命周期
   onMounted(() => {
     document.addEventListener("keydown", handleKeydown);
+    // 自动加载接口数据
+    loadSlides();
   });
 
   onUnmounted(() => {
@@ -145,8 +168,10 @@ export function useCarousel(options: CarouselOptions = {}) {
     isDetailView,
     showIntro,
     partLabel,
+    isLoading,
     // 方法
     setSlides,
+    loadSlides,
     goToSlide,
     next,
     prev,
