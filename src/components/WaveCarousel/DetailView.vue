@@ -311,6 +311,7 @@ const handleThumbClick = (index: number) => {
   color: rgba(255, 255, 255, 0.8);
   animation: fadeInUp 0.6s ease forwards;
   animation-delay: 0.7s;
+  text-align: justify; /* 两端对齐 */
 }
 
 /* 文字重新动画 */

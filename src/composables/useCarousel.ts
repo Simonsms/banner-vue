@@ -2,6 +2,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import type { SlideItem, CarouselOptions } from "@/types/carousel";
 import { defaultSlides } from "@/data/slides";
 import { fetchCarouselData } from "@/api/carousel";
+import { appConfig } from "@/config";
 
 /**
  * 轮播功能组合式函数
@@ -17,7 +18,8 @@ export function useCarousel(options: CarouselOptions = {}) {
   const slides = ref<SlideItem[]>(defaultSlides);
   const currentIndex = ref(0);
   const isAnimating = ref(false);
-  const isDetailView = ref(false);
+  // 如果不显示首屏动画，则直接进入详情视图（轮播图）
+  const isDetailView = ref(!showIntroAnimation);
   const showIntro = ref(showIntroAnimation);
   const autoPlayTimer = ref<number | null>(null);
   const isLoading = ref(false);
@@ -150,8 +152,14 @@ export function useCarousel(options: CarouselOptions = {}) {
   // 生命周期
   onMounted(() => {
     document.addEventListener("keydown", handleKeydown);
-    // 自动加载接口数据
-    loadSlides();
+    // 根据配置决定是否加载接口数据
+    if (appConfig.useApiData) {
+      loadSlides();
+    }
+    // 如果不显示首屏动画，直接启动自动播放
+    if (!showIntroAnimation && autoPlay) {
+      startAutoPlay();
+    }
   });
 
   onUnmounted(() => {

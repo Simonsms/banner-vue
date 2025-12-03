@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<Props>(), {
   options: () => ({
     autoPlayInterval: 5000,
     autoPlay: true,
-    showIntroAnimation: true,
+    showIntroAnimation: false, // 暂时关闭首屏动画，直接显示轮播图
   }),
 });
 
