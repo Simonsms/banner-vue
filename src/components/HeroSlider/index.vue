@@ -298,15 +298,23 @@ defineExpose({
    Swiper Fade 过渡优化 - 长叠化
    ============================================ */
 
-/* 确保 crossFade 效果流畅 */
+/* 确保 crossFade 效果流畅 - 增强淡入淡出冲击力 */
 :deep(.swiper-slide) {
-  transition-property: opacity;
+  transition-property: opacity, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 非活动 slide 完全透明 + 轻微缩小，增强对比冲击力 */
+:deep(.swiper-slide:not(.swiper-slide-active)) {
+  opacity: 0 !important;
+  transform: scale(1.02);
 }
 
 /* 保证层叠顺序正确 */
 :deep(.swiper-slide-active) {
   z-index: 2;
+  opacity: 1 !important;
+  transform: scale(1);
 }
 
 :deep(.swiper-slide-prev),
