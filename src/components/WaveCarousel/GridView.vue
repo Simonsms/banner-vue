@@ -72,7 +72,7 @@ const setGridItemRef = (el: any, index: number) => {
         :ref="(el) => setGridItemRef(el, index)"
         @click="handleClick(index, $event)"
       >
-        <img :src="slide.image" :alt="slide.name" />
+        <img :src="slide.image" :alt="slide.title" />
       </div>
     </div>
   </section>

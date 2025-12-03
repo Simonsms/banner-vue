@@ -46,9 +46,7 @@ function transformFileItems(items: FileItem[]): SlideItem[] {
     .filter((item) => item.path) // 过滤掉没有图片的项
     .map((item) => ({
       image: `http://39.106.88.72:18000/file${item.path}`, // 拼接完整图片地址
-      name: item.author || "未知",
-      position: item.jobTitle || "",
-      thoughts: item.pdesc || "",
-      authorTime: item.authorTime || "",
+      title: item.author || "未知",
+      subtitle: item.jobTitle || "",
     }));
 }

@@ -6,14 +6,10 @@
 export interface SlideItem {
   /** 图片地址 */
   image: string;
-  /** 作者姓名 */
-  name: string;
-  /** 职务 */
-  position: string;
-  /** 描述 */
-  thoughts: string;
-  /** 日期 */
-  authorTime: string;
+  /** 主标题 */
+  title: string;
+  /** 副标题 */
+  subtitle: string;
 }
 
 /** API 返回的文件项 */

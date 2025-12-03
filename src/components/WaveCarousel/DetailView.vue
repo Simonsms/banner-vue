@@ -126,15 +126,11 @@ const handleThumbClick = (index: number) => {
         :class="{ animate: textAnimate, play: textPlay }"
       >
         <div class="part-label">{{ partLabel }}</div>
-        <h1 class="title">{{ currentSlide?.name }}</h1>
+        <h1 class="title">{{ currentSlide?.title }}</h1>
         <div class="divider"></div>
-        <p class="info-item position">
-          <span>职务：{{ currentSlide?.position }}</span>
-          <span v-if="currentSlide?.authorTime" class="author-time">{{
-            currentSlide?.authorTime
-          }}</span>
+        <p class="info-item subtitle">
+          <span>{{ currentSlide?.subtitle }}</span>
         </p>
-        <p class="info-item thoughts">感悟：{{ currentSlide?.thoughts }}</p>
       </div>
 
       <!-- 右侧图片区 -->
@@ -145,7 +141,7 @@ const handleThumbClick = (index: number) => {
             <img
               v-if="currentSlide"
               :src="currentSlide.image"
-              :alt="currentSlide.name"
+              :alt="currentSlide.title"
               class="main-image"
               :class="{
                 current: isTransitioning,
@@ -157,7 +153,7 @@ const handleThumbClick = (index: number) => {
             <img
               v-if="nextSlideIndex !== null && slides[nextSlideIndex]"
               :src="slides[nextSlideIndex]!.image"
-              :alt="slides[nextSlideIndex]!.name"
+              :alt="slides[nextSlideIndex]!.title"
               class="main-image next-enter"
             />
           </div>
