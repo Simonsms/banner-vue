@@ -354,14 +354,24 @@ defineExpose({
   inset: 0;
   z-index: 10;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-end;
   pointer-events: none;
+  padding: 0 3rem 3rem 0;
 }
 
 .brand-content {
   text-align: center;
-  padding: 3rem 4rem;
+  padding: 1rem 1.8rem;
+  max-width: 400px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.06) 0%,
+    rgba(0, 0, 0, 0.04) 100%
+  );
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* ============================================
@@ -419,13 +429,14 @@ defineExpose({
 
 .brand-title {
   font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: clamp(2.8rem, 7vw, 5rem);
+  font-size: clamp(1.3rem, 3vw, 2rem);
   font-weight: 400;
   color: #ffffff;
-  letter-spacing: 0.12em;
-  margin: 0 0 1.5rem;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.8rem;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5), 0 8px 40px rgba(0, 0, 0, 0.3);
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 /* 高亮文字 */
@@ -473,12 +484,12 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  margin: 1rem 0 1.5rem;
+  gap: 0.8rem;
+  margin: 0.6rem 0 1rem;
 }
 
 .line-segment {
-  width: clamp(60px, 15vw, 120px);
+  width: clamp(40px, 12vw, 80px);
   height: 1px;
   background: linear-gradient(
     90deg,
@@ -520,12 +531,12 @@ defineExpose({
 }
 
 .line-diamond {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   background: #64b4ff;
   transform: rotate(45deg);
-  box-shadow: 0 0 10px rgba(100, 180, 255, 0.8),
-    0 0 20px rgba(100, 180, 255, 0.4);
+  box-shadow: 0 0 8px rgba(100, 180, 255, 0.8),
+    0 0 16px rgba(100, 180, 255, 0.4);
   animation: diamondPulse 2s ease-in-out infinite;
 }
 
@@ -548,8 +559,8 @@ defineExpose({
    ============================================ */
 
 .arc-light-container {
-  width: clamp(260px, 45vw, 420px);
-  margin: 0 auto 1.5rem;
+  width: clamp(180px, 35vw, 300px);
+  margin: 0 auto 1rem;
 }
 
 .arc-light {
@@ -595,7 +606,7 @@ defineExpose({
 
 .brand-subtitle {
   font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  font-size: clamp(0.85rem, 1.8vw, 1.2rem);
+  font-size: clamp(0.7rem, 1.4vw, 0.95rem);
   font-weight: 300;
   color: rgba(255, 255, 255, 0.9);
   letter-spacing: 0.5em;
@@ -652,7 +663,7 @@ defineExpose({
 
 .slide-counter {
   position: absolute;
-  bottom: 3rem;
+  top: 3rem;
   right: 3rem;
   z-index: 10;
   font-family: "Roboto Mono", "SF Mono", monospace;
@@ -737,14 +748,19 @@ defineExpose({
    ============================================ */
 
 @media (max-width: 768px) {
+  .brand-overlay {
+    padding: 0 1.5rem 2rem 0;
+  }
+
   .brand-content {
-    padding: 2rem 1.5rem;
+    padding: 1rem 1.5rem;
+    max-width: 85%;
   }
 
   .brand-title {
-    font-size: clamp(1.6rem, 9vw, 2.8rem);
+    font-size: clamp(1.3rem, 6vw, 2rem);
     letter-spacing: 0.08em;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
   }
 
   .decorative-line {
@@ -762,12 +778,12 @@ defineExpose({
   }
 
   .arc-light-container {
-    width: clamp(180px, 65vw, 280px);
-    margin-bottom: 1rem;
+    width: clamp(140px, 50vw, 220px);
+    margin-bottom: 0.8rem;
   }
 
   .brand-subtitle {
-    font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+    font-size: clamp(0.6rem, 2vw, 0.8rem);
     letter-spacing: 0.3em;
   }
 
@@ -780,7 +796,7 @@ defineExpose({
   }
 
   .slide-counter {
-    bottom: 2rem;
+    top: 2rem;
     right: 1.5rem;
     font-size: 0.75rem;
   }
@@ -805,8 +821,12 @@ defineExpose({
 
 /* 超小屏幕 */
 @media (max-width: 480px) {
+  .brand-content {
+    padding: 0.8rem 1.2rem;
+  }
+
   .brand-title {
-    font-size: clamp(1.4rem, 8vw, 2rem);
+    font-size: clamp(1.1rem, 6.5vw, 1.6rem);
   }
 
   .title-highlight {
