@@ -24,23 +24,28 @@ export const cdnConfig = {
 
   /**
    * CDN 基础 URL
-   * 格式: https://cdn.jsdelivr.net/gh/用户名/仓库名@分支/目录
+   * 格式: https://cdn.jsdelivr.net/gh/用户名/仓库名@版本/目录
+   *
+   * 版本可以是：
+   * - 分支名：@main
+   * - Tag：@v1.0.0
+   * - Commit：@51d4a16（推荐，更可靠）
    *
    * 国内 CDN（推荐）:
-   * - gcore: https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@main/images
+   * - gcore: https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@51d4a16/images
    *
    * 国际 CDN:
-   * - cdn: https://cdn.jsdelivr.net/gh/Simonsms/banner-vue@main/images
-   * - fastly: https://fastly.jsdelivr.net/gh/Simonsms/banner-vue@main/images
+   * - cdn: https://cdn.jsdelivr.net/gh/Simonsms/banner-vue@51d4a16/images
+   * - fastly: https://fastly.jsdelivr.net/gh/Simonsms/banner-vue@51d4a16/images
    */
-  baseUrl: "https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
+  baseUrl: "https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@51d4a16/images",
 
   /**
    * 备用 CDN URLs（降级方案）
    */
   fallbackUrls: [
-    "https://cdn.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
-    "https://fastly.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
+    "https://cdn.jsdelivr.net/gh/Simonsms/banner-vue@51d4a16/images",
+    "https://fastly.jsdelivr.net/gh/Simonsms/banner-vue@51d4a16/images",
   ],
 };
 
