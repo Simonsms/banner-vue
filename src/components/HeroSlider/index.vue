@@ -30,6 +30,7 @@ const isLoading = ref(false);
 
 // 动画状态控制
 const textVisible = ref(true);
+const isFirstLoad = ref(true); // 标记是否为首次加载
 
 // Swiper modules
 const modules = [EffectFade, Autoplay];
@@ -56,20 +57,19 @@ const swiperInstance = ref<SwiperType | null>(null);
 const onSwiper = (swiper: SwiperType) => {
   swiperInstance.value = swiper;
 };
-
-// Swiper 切换开始 - 文字淡出
+// Swiper 切换开始 - 文字不再动画（首次加载后固定）
 const onSlideChangeTransitionStart = () => {
-  textVisible.value = false;
+  // 首次加载后，文字保持固定不动
+  if (isFirstLoad.value) {
+    isFirstLoad.value = false;
+  }
+  // 不再触发文字淡出
 };
 
-// Swiper 切换结束 - 文字淡入
+// Swiper 切换结束 - 更新索引（文字保持固定）
 const onSlideChangeTransitionEnd = (swiper: SwiperType) => {
   activeIndex.value = swiper.realIndex;
-
-  // 等待背景叠化完成后，文字淡入
-  setTimeout(() => {
-    textVisible.value = true;
-  }, 300);
+  // 文字保持固定，不再触发淡入动画
 };
 
 // 生命周期
@@ -124,20 +124,18 @@ defineExpose({
       </SwiperSlide>
     </Swiper>
 
-    <!-- 品牌标题区域 - Mask Reveal 动画 -->
-    <div class="brand-overlay">
+    <!-- 品牌标题区域 - 左上角 -->
+    <div class="brand-overlay brand-overlay--top-left">
       <div class="brand-content" :class="{ 'is-visible': textVisible }">
         <!-- 主标题 - 遮罩揭示 -->
         <div class="text-mask">
           <h1 class="brand-title">深地弧光 绿能"链"动</h1>
         </div>
 
-        <!-- 装饰线 - 工业风格 -->
+        <!-- 装饰线 - 工业风格（已移除橙色和蓝色的横线） -->
         <div class="text-mask text-mask--delay-1">
           <div class="decorative-line">
-            <span class="line-segment line-left"></span>
             <span class="line-diamond"></span>
-            <span class="line-segment line-right"></span>
           </div>
         </div>
 
@@ -190,6 +188,25 @@ defineExpose({
         <div class="text-mask text-mask--delay-3">
           <p class="brand-subtitle">中铁建发展集团 宣</p>
         </div>
+      </div>
+    </div>
+
+    <!-- 小程序二维码 - 右下角 -->
+    <div class="qrcode-overlay">
+      <div class="qrcode-container" :class="{ 'is-visible': textVisible }">
+        <div class="qrcode-frame">
+          <!-- 四角发光装饰点 -->
+          <span class="corner-dot corner-dot--tl"></span>
+          <span class="corner-dot corner-dot--tr"></span>
+          <span class="corner-dot corner-dot--bl"></span>
+          <span class="corner-dot corner-dot--br"></span>
+          <img
+            src="@/assets/images/qrUrl.png"
+            alt="小程序二维码"
+            class="qrcode-image"
+          />
+        </div>
+        <p class="qrcode-label">扫码进入小程序</p>
       </div>
     </div>
 
@@ -360,18 +377,146 @@ defineExpose({
   padding: 0 3rem 3rem 0;
 }
 
+/* 左上角布局 */
+.brand-overlay--top-left {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 3rem 0 0 3rem;
+}
+
 .brand-content {
   text-align: center;
   padding: 1rem 1.8rem;
   max-width: 400px;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.06) 0%,
-    rgba(0, 0, 0, 0.04) 100%
-  );
-  backdrop-filter: blur(8px);
+  /* 降低蒙版透明度，减少模糊效果，使其与背景融合更自然 */
+  background: rgba(0, 0, 0, 0.02);
+  backdrop-filter: blur(2px);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+/* ============================================
+   小程序二维码区域 - 右下角
+   ============================================ */
+
+.qrcode-overlay {
+  position: absolute;
+  bottom: 3rem;
+  right: 3rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.qrcode-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qrcode-container.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.qrcode-frame {
+  position: relative;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 40px rgba(100, 180, 255, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* 边框装饰 - 四角发光点动画 */
+@keyframes corner-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(100, 180, 255, 0.6);
+  }
+  50% {
+    transform: scale(1.4);
+    box-shadow: 0 0 16px rgba(100, 180, 255, 1),
+      0 0 24px rgba(100, 180, 255, 0.4);
+  }
+}
+
+@keyframes corner-orbit {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.2) rotate(90deg);
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+  }
+  75% {
+    transform: scale(1.2) rotate(270deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+/* 四角装饰点基础样式 */
+.corner-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(135deg, #64b4ff 0%, #a0d8ff 50%, #64b4ff 100%);
+  background-size: 200% 200%;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(100, 180, 255, 0.6);
+  pointer-events: none;
+  z-index: 5;
+  animation: corner-pulse 2.5s ease-in-out infinite;
+}
+
+/* 四角定位 */
+.corner-dot--tl {
+  top: -4px;
+  left: -4px;
+  animation-delay: 0s;
+}
+
+.corner-dot--tr {
+  top: -4px;
+  right: -4px;
+  animation-delay: 0.6s;
+}
+
+.corner-dot--bl {
+  bottom: -4px;
+  left: -4px;
+  animation-delay: 1.2s;
+}
+
+.corner-dot--br {
+  bottom: -4px;
+  right: -4px;
+  animation-delay: 1.8s;
+}
+
+.qrcode-image {
+  display: block;
+  width: 100px;
+  height: 100px;
+  border-radius: 6px;
+}
+
+.qrcode-label {
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.1em;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 /* ============================================
@@ -748,8 +893,8 @@ defineExpose({
    ============================================ */
 
 @media (max-width: 768px) {
-  .brand-overlay {
-    padding: 0 1.5rem 2rem 0;
+  .brand-overlay--top-left {
+    padding: 2rem 0 0 1.5rem;
   }
 
   .brand-content {
@@ -817,10 +962,33 @@ defineExpose({
   .scroll-text {
     font-size: 0.55rem;
   }
+
+  /* 二维码响应式 */
+  .qrcode-overlay {
+    bottom: 2rem;
+    right: 1.5rem;
+  }
+
+  .qrcode-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .qrcode-frame {
+    padding: 8px;
+  }
+
+  .qrcode-label {
+    font-size: 0.65rem;
+  }
 }
 
 /* 超小屏幕 */
 @media (max-width: 480px) {
+  .brand-overlay--top-left {
+    padding: 1.5rem 0 0 1rem;
+  }
+
   .brand-content {
     padding: 0.8rem 1.2rem;
   }
@@ -839,6 +1007,51 @@ defineExpose({
 
   .scroll-hint {
     display: none;
+  }
+
+  /* 二维码超小屏幕 */
+  .qrcode-overlay {
+    bottom: 1.5rem;
+    right: 1rem;
+  }
+
+  .qrcode-image {
+    width: 70px;
+    height: 70px;
+  }
+
+  .qrcode-frame {
+    padding: 6px;
+    border-radius: 8px;
+  }
+
+  .qrcode-label {
+    font-size: 0.6rem;
+  }
+
+  .corner-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .corner-dot--tl {
+    top: -3px;
+    left: -3px;
+  }
+
+  .corner-dot--tr {
+    top: -3px;
+    right: -3px;
+  }
+
+  .corner-dot--bl {
+    bottom: -3px;
+    left: -3px;
+  }
+
+  .corner-dot--br {
+    bottom: -3px;
+    right: -3px;
   }
 }
 </style>
