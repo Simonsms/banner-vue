@@ -4,9 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import { EffectFade, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import type { SlideItem } from "@/types/carousel";
-import { defaultSlides } from "@/data/slides";
 import { fetchCarouselData } from "@/api/carousel";
-import { appConfig } from "@/config";
 
 // Swiper CSS
 // @ts-ignore
@@ -24,9 +22,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // State
-const slides = ref<SlideItem[]>(props.data ?? defaultSlides);
+const slides = ref<SlideItem[]>(props.data ?? []);
 const activeIndex = ref(0);
-const isLoading = ref(false);
+const isLoading = ref(true);
 
 // 动画状态控制
 const textVisible = ref(true);
@@ -74,9 +72,7 @@ const onSlideChangeTransitionEnd = (swiper: SwiperType) => {
 
 // 生命周期
 onMounted(() => {
-  if (appConfig.useApiData) {
-    loadSlides();
-  }
+  loadSlides();
 });
 
 // 暴露方法
@@ -91,6 +87,7 @@ defineExpose({
   <div class="hero-slider">
     <!-- 背景轮播 - 电影级沉浸式切换 -->
     <Swiper
+      v-if="slides.length > 0"
       :modules="modules"
       effect="fade"
       :speed="1500"
@@ -113,10 +110,7 @@ defineExpose({
       >
         <!-- 背景图容器 - Ken Burns 持续缩放 -->
         <div class="slide-bg-wrapper">
-          <div
-            class="slide-bg"
-            :style="{ backgroundImage: `url(${slide.image})` }"
-          ></div>
+          <img class="slide-bg" :src="slide.image" alt="" />
         </div>
 
         <!-- 暗色遮罩 -->
@@ -130,13 +124,6 @@ defineExpose({
         <!-- 主标题 - 遮罩揭示 -->
         <div class="text-mask">
           <h1 class="brand-title">深地弧光 绿能"链"动</h1>
-        </div>
-
-        <!-- 装饰线 - 工业风格（已移除橙色和蓝色的横线） -->
-        <div class="text-mask text-mask--delay-1">
-          <div class="decorative-line">
-            <span class="line-diamond"></span>
-          </div>
         </div>
 
         <!-- 弧光 SVG -->
@@ -277,8 +264,9 @@ defineExpose({
   inset: -5%;
   width: 110%;
   height: 110%;
-  background-size: cover;
-  background-position: center;
+  /* 使用 img 标签实现 cover 效果 */
+  object-fit: cover;
+  object-position: center;
   will-change: transform;
   /* 初始状态 */
   transform: scale(1);
@@ -579,7 +567,6 @@ defineExpose({
   color: #ffffff;
   letter-spacing: 0.08em;
   margin: 0 0 0.8rem;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5), 0 8px 40px rgba(0, 0, 0, 0.3);
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -672,30 +659,6 @@ defineExpose({
   to {
     transform: scaleX(1);
     transform-origin: left center;
-  }
-}
-
-.line-diamond {
-  width: 6px;
-  height: 6px;
-  background: #64b4ff;
-  transform: rotate(45deg);
-  box-shadow: 0 0 8px rgba(100, 180, 255, 0.8),
-    0 0 16px rgba(100, 180, 255, 0.4);
-  animation: diamondPulse 2s ease-in-out infinite;
-}
-
-@keyframes diamondPulse {
-  0%,
-  100% {
-    opacity: 0.8;
-    box-shadow: 0 0 10px rgba(100, 180, 255, 0.8),
-      0 0 20px rgba(100, 180, 255, 0.4);
-  }
-  50% {
-    opacity: 1;
-    box-shadow: 0 0 15px rgba(100, 180, 255, 1),
-      0 0 30px rgba(100, 180, 255, 0.6);
   }
 }
 
@@ -915,11 +878,6 @@ defineExpose({
 
   .line-segment {
     width: clamp(40px, 12vw, 80px);
-  }
-
-  .line-diamond {
-    width: 6px;
-    height: 6px;
   }
 
   .arc-light-container {

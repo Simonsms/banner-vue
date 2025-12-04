@@ -2,7 +2,7 @@
  * @Author       : LAPTOP-T1PV1M6U\赵祥 18201492987@163.com
  * @Date         : 2025-12-02 22:05:56
  * @LastEditors  : LAPTOP-T1PV1M6U\赵祥 18201492987@163.com
- * @LastEditTime : 2025-12-02 22:16:50
+ * @LastEditTime : 2025-12-04 22:49:36
  * @FilePath     : \iosbanner-vue\src\api\carousel.ts
  * @Description  :
  *
@@ -42,11 +42,22 @@ export async function fetchCarouselData(): Promise<SlideItem[]> {
  * 将 API 返回的 FileItem 转换为前端使用的 SlideItem
  */
 function transformFileItems(items: FileItem[]): SlideItem[] {
+  // 从环境变量获取 OSS 图片域名
+  const ossUrl = import.meta.env.VITE_APP_OSS_URL || "";
+
   return items
     .filter((item) => item.path) // 过滤掉没有图片的项
-    .map((item) => ({
-      image: `http://39.106.88.72:18000/file${item.path}`, // 拼接完整图片地址
-      title: item.author || "未知",
-      subtitle: item.jobTitle || "",
-    }));
+    .map((item) => {
+      // 对路径进行 URL 编码（处理中文等特殊字符）
+      const encodedPath = item.path
+        .split("/")
+        .map((segment) => encodeURIComponent(segment))
+        .join("/");
+
+      return {
+        image: `${ossUrl}${encodedPath}`,
+        title: item.author || "未知",
+        subtitle: item.jobTitle || "",
+      };
+    });
 }
