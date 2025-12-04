@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { EffectFade, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import type { SlideItem } from "@/types/carousel";
-import { fetchCarouselData } from "@/api/carousel";
+import { fetchCarouselData, fetchNewCarouselItems } from "@/api/carousel";
 
 // Swiper CSS
 // @ts-ignore
@@ -16,15 +16,21 @@ import "swiper/css/effect-fade";
 interface Props {
   data?: SlideItem[];
   showIndicators?: boolean;
+  /** 轮询间隔（毫秒），默认 30 秒 */
+  pollInterval?: number;
 }
 const props = withDefaults(defineProps<Props>(), {
   showIndicators: false,
+  pollInterval: 30000,
 });
 
 // State
 const slides = ref<SlideItem[]>(props.data ?? []);
 const activeIndex = ref(0);
 const isLoading = ref(true);
+
+// 存储已有的ID，用于增量更新去重
+const slideIds = ref<Set<string>>(new Set());
 
 // 动画状态控制
 const textVisible = ref(true);
@@ -33,18 +39,67 @@ const isFirstLoad = ref(true); // 标记是否为首次加载
 // Swiper modules
 const modules = [EffectFade, Autoplay];
 
-// 加载数据
+// 轮询定时器
+let pollTimer: number | null = null;
+
+// 加载数据（首次加载）
 const loadSlides = async () => {
   isLoading.value = true;
   try {
     const data = await fetchCarouselData();
     if (data.length > 0) {
       slides.value = data;
+      // 记录已有ID
+      slideIds.value = new Set(data.map((s) => s.id));
     }
   } catch (error) {
     console.error("加载轮播数据失败:", error);
   } finally {
     isLoading.value = false;
+  }
+};
+
+// 增量更新 - 只获取新增的数据（无感知）
+const refreshSlides = async () => {
+  // 首次加载未完成时不执行增量更新
+  if (isLoading.value || slideIds.value.size === 0) return;
+
+  try {
+    const newItems = await fetchNewCarouselItems(slideIds.value);
+
+    if (newItems.length > 0) {
+      // 平滑追加到队列末尾
+      newItems.forEach((item) => {
+        slides.value.push(item);
+        slideIds.value.add(item.id);
+      });
+
+      // 通知 Swiper 更新（loop 模式需要重新计算）
+      if (swiperInstance.value) {
+        swiperInstance.value.update();
+        // loop 模式下需要重新初始化
+        if (swiperInstance.value.params.loop) {
+          swiperInstance.value.loopDestroy();
+          swiperInstance.value.loopCreate();
+        }
+      }
+    }
+  } catch (error) {
+    console.error("增量更新轮播数据失败:", error);
+  }
+};
+
+// 启动轮询
+const startPolling = () => {
+  if (pollTimer) return;
+  pollTimer = window.setInterval(refreshSlides, props.pollInterval);
+};
+
+// 停止轮询
+const stopPolling = () => {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
   }
 };
 
@@ -73,6 +128,13 @@ const onSlideChangeTransitionEnd = (swiper: SwiperType) => {
 // 生命周期
 onMounted(() => {
   loadSlides();
+  // 首次加载完成后启动轮询
+  startPolling();
+});
+
+onUnmounted(() => {
+  // 组件销毁时清理定时器
+  stopPolling();
 });
 
 // 暴露方法
@@ -80,6 +142,9 @@ defineExpose({
   slides,
   activeIndex,
   loadSlides,
+  refreshSlides,
+  startPolling,
+  stopPolling,
 });
 </script>
 
@@ -103,11 +168,7 @@ defineExpose({
       @slide-change-transition-start="onSlideChangeTransitionStart"
       @slide-change-transition-end="onSlideChangeTransitionEnd"
     >
-      <SwiperSlide
-        v-for="(slide, index) in slides"
-        :key="index"
-        class="hero-slide"
-      >
+      <SwiperSlide v-for="slide in slides" :key="slide.id" class="hero-slide">
         <!-- 背景图容器 - Ken Burns 持续缩放 -->
         <div class="slide-bg-wrapper">
           <img class="slide-bg" :src="slide.image" alt="" />

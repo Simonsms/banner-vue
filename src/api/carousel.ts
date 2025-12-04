@@ -55,9 +55,37 @@ function transformFileItems(items: FileItem[]): SlideItem[] {
         .join("/");
 
       return {
+        id: item.id, // 保留唯一标识，用于增量更新去重
         image: `${ossUrl}${encodedPath}`,
         title: item.author || "未知",
         subtitle: item.jobTitle || "",
       };
     });
+}
+
+/**
+ * 增量获取轮播图数据（只返回新增的项）
+ * @param existingIds 已存在的图片ID集合
+ */
+export async function fetchNewCarouselItems(
+  existingIds: Set<string>
+): Promise<SlideItem[]> {
+  try {
+    const res = await service.get<CarouselApiResponse>("/system/file/screen");
+
+    if (res.data.code === "0" && res.data.data) {
+      // 过滤出新增的数据（不在已有ID集合中的）
+      const newItems = res.data.data.filter(
+        (item) => !existingIds.has(item.id)
+      );
+      if (newItems.length > 0) {
+        console.log(`[轮播增量更新] 发现 ${newItems.length} 条新数据`);
+        return transformFileItems(newItems);
+      }
+    }
+  } catch (error) {
+    console.error("增量获取轮播数据失败:", error);
+  }
+
+  return [];
 }

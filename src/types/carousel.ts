@@ -4,6 +4,8 @@
 
 /** 单个幻灯片数据（前端使用） */
 export interface SlideItem {
+  /** 唯一标识（用于增量更新去重） */
+  id: string;
   /** 图片地址 */
   image: string;
   /** 主标题 */
