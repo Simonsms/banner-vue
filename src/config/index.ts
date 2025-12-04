@@ -30,13 +30,13 @@ export const cdnConfig = {
    *   - gcore: https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@main/images
    *   - fastly: https://fastly.jsdelivr.net/gh/Simonsms/banner-vue@main/images
    */
-  baseUrl: "https://cdn.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
+  baseUrl: "https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
 
   /**
    * 备用 CDN URLs（降级方案）
    */
   fallbackUrls: [
-    "https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
+    "https://cdn.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
     "https://fastly.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
   ],
 };
