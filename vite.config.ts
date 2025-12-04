@@ -53,6 +53,12 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
+      // 排除图片资源打包（使用 CDN）
+      assetsInlineLimit: 0, // 禁用内联
+      // 注意：由于已改为使用 CDN，本地图片不会被引用
+    },
+    optimizeDeps: {
+      exclude: ["src/assets/images"],
     },
   };
 });
