@@ -17,27 +17,28 @@ export const appConfig = {
 export const cdnConfig = {
   /**
    * 是否启用 CDN
+   * 开发环境：false (使用本地 public/images)
+   * 生产环境：true (使用 CDN)
    */
-  enabled: true,
+  enabled: import.meta.env.MODE === "production",
 
   /**
    * CDN 基础 URL
    * 格式: https://cdn.jsdelivr.net/gh/用户名/仓库名@分支/目录
    *
-   * 示例:
-   * - GitHub: https://cdn.jsdelivr.net/gh/Simonsms/banner-vue@main/images
-   * - 国内备用 CDN:
-   *   - gcore: https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@main/images
-   *   - fastly: https://fastly.jsdelivr.net/gh/Simonsms/banner-vue@main/images
+   * 国内 CDN（推荐）:
+   * - gcore: https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@main/images
+   *
+   * 国际 CDN:
+   * - cdn: https://cdn.jsdelivr.net/gh/Simonsms/banner-vue@main/images
+   * - fastly: https://fastly.jsdelivr.net/gh/Simonsms/banner-vue@main/images
    */
-  baseUrl: "https://raw.githubusercontent.com/Simonsms/banner-vue/main/images",
+  baseUrl: "https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
 
   /**
    * 备用 CDN URLs（降级方案）
-   * 注意：临时使用 GitHub 直连，CDN 生效后可切换回来
    */
   fallbackUrls: [
-    "https://gcore.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
     "https://cdn.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
     "https://fastly.jsdelivr.net/gh/Simonsms/banner-vue@main/images",
   ],

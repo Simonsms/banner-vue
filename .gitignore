@@ -44,3 +44,6 @@ src/assets/images/banner-*.jpg
 
 # Compressed images (临时目录)
 compressed-images/
+
+# Public images (开发环境使用，不提交)
+public/images/
