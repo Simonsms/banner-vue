@@ -41,3 +41,6 @@ dist-ssr
 # Local images (使用 CDN 后，本地图片不需要提交)
 src/assets/images/微信图片_*.jpg
 src/assets/images/banner-*.jpg
+
+# Compressed images (临时目录)
+compressed-images/
