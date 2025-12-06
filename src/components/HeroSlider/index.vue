@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import { EffectFade, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import type { SlideItem } from "@/types/carousel";
-import { fetchCarouselData, fetchNewCarouselItems } from "@/api/carousel";
+import { fetchCarouselData, syncCarouselItems } from "@/api/carousel";
 
 // Swiper CSS
 // @ts-ignore
@@ -31,6 +31,9 @@ const isLoading = ref(true);
 
 // 存储已有的ID，用于增量更新去重
 const slideIds = ref<Set<string>>(new Set());
+
+// Swiper 重渲染 key（用于强制重新初始化）
+const swiperKey = ref(0);
 
 // 动画状态控制
 const textVisible = ref(true);
@@ -59,33 +62,39 @@ const loadSlides = async () => {
   }
 };
 
-// 增量更新 - 只获取新增的数据（无感知）
+// 增量同步 - 处理新增和删除的数据（无感知）
 const refreshSlides = async () => {
-  // 首次加载未完成时不执行增量更新
+  // 首次加载未完成时不执行增量同步
   if (isLoading.value || slideIds.value.size === 0) return;
 
   try {
-    const newItems = await fetchNewCarouselItems(slideIds.value);
+    const { addedItems, removedIds } = await syncCarouselItems(slideIds.value);
 
-    if (newItems.length > 0) {
-      // 平滑追加到队列末尾
-      newItems.forEach((item) => {
-        slides.value.push(item);
+    // 没有变化时直接返回
+    if (addedItems.length === 0 && removedIds.length === 0) return;
+
+    // 1. 处理删除的数据
+    if (removedIds.length > 0) {
+      slides.value = slides.value.filter(
+        (slide) => !removedIds.includes(slide.id)
+      );
+      removedIds.forEach((id) => slideIds.value.delete(id));
+    }
+
+    // 2. 处理新增的数据（插入到最前面）
+    if (addedItems.length > 0) {
+      // 反转后逐个 unshift，保持新增数据的原始顺序
+      [...addedItems].reverse().forEach((item) => {
+        slides.value.unshift(item);
         slideIds.value.add(item.id);
       });
-
-      // 通知 Swiper 更新（loop 模式需要重新计算）
-      if (swiperInstance.value) {
-        swiperInstance.value.update();
-        // loop 模式下需要重新初始化
-        if (swiperInstance.value.params.loop) {
-          swiperInstance.value.loopDestroy();
-          swiperInstance.value.loopCreate();
-        }
-      }
     }
+
+    // 3. 重置索引并强制重新渲染 Swiper
+    activeIndex.value = 0;
+    swiperKey.value++;
   } catch (error) {
-    console.error("增量更新轮播数据失败:", error);
+    console.error("增量同步轮播数据失败:", error);
   }
 };
 
@@ -153,6 +162,7 @@ defineExpose({
     <!-- 背景轮播 - 电影级沉浸式切换 -->
     <Swiper
       v-if="slides.length > 0"
+      :key="swiperKey"
       :modules="modules"
       effect="fade"
       :speed="1500"
