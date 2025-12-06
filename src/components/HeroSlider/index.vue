@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { EffectFade, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -32,8 +32,10 @@ const isLoading = ref(true);
 // 存储已有的ID，用于增量更新去重
 const slideIds = ref<Set<string>>(new Set());
 
-// Swiper 重渲染 key（用于强制重新初始化）
+// 双 Swiper 交叉淡入淡出控制
 const swiperKey = ref(0);
+const isTransitioning = ref(false);
+const oldSlides = ref<SlideItem[]>([]); // 旧数据（用于过渡期间显示）
 
 // 动画状态控制
 const textVisible = ref(true);
@@ -62,10 +64,12 @@ const loadSlides = async () => {
   }
 };
 
-// 增量同步 - 处理新增和删除的数据（无感知）
+// 增量同步 - 处理新增和删除的数据（双 Swiper 无缝过渡）
 const refreshSlides = async () => {
   // 首次加载未完成时不执行增量同步
   if (isLoading.value || slideIds.value.size === 0) return;
+  // 正在过渡中，跳过本次同步
+  if (isTransitioning.value) return;
 
   try {
     const { addedItems, removedIds } = await syncCarouselItems(slideIds.value);
@@ -73,7 +77,15 @@ const refreshSlides = async () => {
     // 没有变化时直接返回
     if (addedItems.length === 0 && removedIds.length === 0) return;
 
-    // 1. 处理删除的数据
+    // === 双 Swiper 交叉淡入淡出 ===
+
+    // 1. 保存当前数据作为旧 Swiper 的数据源
+    oldSlides.value = [...slides.value];
+
+    // 2. 开始过渡（显示旧 Swiper 作为底层）
+    isTransitioning.value = true;
+
+    // 3. 处理删除的数据
     if (removedIds.length > 0) {
       slides.value = slides.value.filter(
         (slide) => !removedIds.includes(slide.id)
@@ -81,20 +93,31 @@ const refreshSlides = async () => {
       removedIds.forEach((id) => slideIds.value.delete(id));
     }
 
-    // 2. 处理新增的数据（插入到最前面）
+    // 4. 处理新增的数据（插入到最前面）
     if (addedItems.length > 0) {
-      // 反转后逐个 unshift，保持新增数据的原始顺序
       [...addedItems].reverse().forEach((item) => {
         slides.value.unshift(item);
         slideIds.value.add(item.id);
       });
     }
 
-    // 3. 重置索引并强制重新渲染 Swiper
-    activeIndex.value = 0;
+    // 5. 触发新 Swiper 创建（通过 key 变化）
     swiperKey.value++;
+    await nextTick();
+    activeIndex.value = 0;
+
+    // 6. 等待新 Swiper 渲染完成后，淡出旧 Swiper（CSS 过渡处理）
+    // 延迟一点确保新 Swiper 已渲染
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // 7. 过渡动画完成后清理旧数据（CSS 过渡时间 800ms）
+    setTimeout(() => {
+      isTransitioning.value = false;
+      oldSlides.value = [];
+    }, 800);
   } catch (error) {
     console.error("增量同步轮播数据失败:", error);
+    isTransitioning.value = false;
   }
 };
 
@@ -119,6 +142,7 @@ const swiperInstance = ref<SwiperType | null>(null);
 const onSwiper = (swiper: SwiperType) => {
   swiperInstance.value = swiper;
 };
+
 // Swiper 切换开始 - 文字不再动画（首次加载后固定）
 const onSlideChangeTransitionStart = () => {
   // 首次加载后，文字保持固定不动
@@ -159,7 +183,30 @@ defineExpose({
 
 <template>
   <div class="hero-slider">
-    <!-- 背景轮播 - 电影级沉浸式切换 -->
+    <!-- 旧 Swiper（底层，过渡时显示，淡出） -->
+    <Swiper
+      v-if="isTransitioning && oldSlides.length > 0"
+      :modules="modules"
+      effect="fade"
+      :speed="1500"
+      :loop="true"
+      :fade-effect="{ crossFade: true }"
+      class="hero-swiper hero-swiper--old"
+      :class="{ 'is-fading-out': isTransitioning }"
+    >
+      <SwiperSlide
+        v-for="slide in oldSlides"
+        :key="slide.id"
+        class="hero-slide"
+      >
+        <div class="slide-bg-wrapper">
+          <img class="slide-bg" :src="slide.image" alt="" />
+        </div>
+        <div class="slide-overlay"></div>
+      </SwiperSlide>
+    </Swiper>
+
+    <!-- 新 Swiper（顶层，淡入） -->
     <Swiper
       v-if="slides.length > 0"
       :key="swiperKey"
@@ -173,7 +220,8 @@ defineExpose({
       }"
       :fade-effect="{ crossFade: true }"
       :grab-cursor="true"
-      class="hero-swiper"
+      class="hero-swiper hero-swiper--new"
+      :class="{ 'is-fading-in': isTransitioning }"
       @swiper="onSwiper"
       @slide-change-transition-start="onSlideChangeTransitionStart"
       @slide-change-transition-end="onSlideChangeTransitionEnd"
@@ -308,9 +356,45 @@ defineExpose({
   background: #0a0a0a;
 }
 
+/* ============================================
+   双 Swiper 交叉淡入淡出
+   ============================================ */
+
 .hero-swiper {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+}
+
+/* 旧 Swiper - 底层，过渡时淡出 */
+.hero-swiper--old {
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 0.8s ease-out;
+}
+
+.hero-swiper--old.is-fading-out {
+  opacity: 0;
+}
+
+/* 新 Swiper - 顶层，过渡时淡入 */
+.hero-swiper--new {
+  z-index: 2;
+  opacity: 1;
+}
+
+.hero-swiper--new.is-fading-in {
+  animation: swiperFadeIn 0.8s ease-out forwards;
+}
+
+@keyframes swiperFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .hero-slide {
